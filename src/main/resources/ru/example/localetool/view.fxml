@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.SeparatorMenuItem?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="480.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.example.localetool.controllers.Controller">
+   <children>
+      <MenuBar AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+        <menus>
+          <Menu mnemonicParsing="false" text="Файл">
+            <items>
+                  <MenuItem fx:id="mi_file_open" mnemonicParsing="false" text="Открыть..." />
+                  <MenuItem fx:id="mi_file_openRecent" mnemonicParsing="false" text="Открыть последний файл" />
+                  <MenuItem fx:id="mi_file_save" mnemonicParsing="false" text="Сохранить" />
+                  <MenuItem fx:id="mi_file_saveAs" mnemonicParsing="false" text="Сохранить как..." />
+                  <SeparatorMenuItem mnemonicParsing="false" />
+              <MenuItem fx:id="mi_file_quit" mnemonicParsing="false" text="Выйти" />
+            </items>
+          </Menu>
+          <Menu mnemonicParsing="false" text="Помощь">
+            <items>
+              <MenuItem fx:id="mi_help_about" mnemonicParsing="false" text="О программе" />
+            </items>
+          </Menu>
+        </menus>
+      </MenuBar>
+      <AnchorPane fx:id="workspace" layoutY="25.0" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="25.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="25.0">
+         <children>
+            <Label text="ID:" AnchorPane.leftAnchor="8.0" AnchorPane.topAnchor="12.0" />
+            <TextField fx:id="textfield_id" editable="false" prefHeight="25.0" prefWidth="338.0" AnchorPane.leftAnchor="32.0" AnchorPane.rightAnchor="8.0" AnchorPane.topAnchor="8.0" />
+            <Label layoutX="10.0" layoutY="10.0" text="Описание:" AnchorPane.leftAnchor="8.0" AnchorPane.topAnchor="48.0" />
+            <TextArea fx:id="textarea_description" editable="false" layoutX="76.0" layoutY="48.0" prefHeight="60.0" wrapText="true" AnchorPane.leftAnchor="80.0" AnchorPane.rightAnchor="8.0" />
+            <SplitPane dividerPositions="0.5" prefHeight="160.0" prefWidth="200.0" AnchorPane.bottomAnchor="16.0" AnchorPane.leftAnchor="8.0" AnchorPane.rightAnchor="8.0" AnchorPane.topAnchor="120.0">
+              <items>
+                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
+                     <children>
+                        <VBox prefHeight="200.0" prefWidth="100.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                           <children>
+                              <Label text="Оригинал" />
+                              <TextArea fx:id="textarea_original" editable="false" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="10000.0" wrapText="true" />
+                           </children>
+                        </VBox>
+                     </children>
+                  </AnchorPane>
+                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
+                     <children>
+                        <VBox prefHeight="200.0" prefWidth="100.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                           <children>
+                              <Label text="Перевод" />
+                              <TextArea fx:id="textarea_translated" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="10000.0" wrapText="true" />
+                           </children>
+                        </VBox>
+                     </children>
+                  </AnchorPane>
+              </items>
+            </SplitPane>
+         </children>
+      </AnchorPane>
+      <HBox prefWidth="200.0" spacing="1.0" AnchorPane.bottomAnchor="8.0" AnchorPane.leftAnchor="8.0" AnchorPane.rightAnchor="8.0">
+         <children>
+            <Button fx:id="button_backForce" mnemonicParsing="false">
+               <graphic>
+                  <FontAwesomeIconView glyphName="ANGLE_DOUBLE_LEFT" />
+               </graphic>
+            </Button>
+            <Button fx:id="button_back" mnemonicParsing="false">
+               <graphic>
+                  <FontAwesomeIconView glyphName="ANGLE_LEFT" />
+               </graphic>
+            </Button>
+            <TextField fx:id="textfield_currentLine" prefWidth="80.0" />
+            <Button fx:id="button_forward" mnemonicParsing="false">
+               <graphic>
+                  <FontAwesomeIconView glyphName="ANGLE_RIGHT" text="" />
+               </graphic>
+            </Button>
+            <Button fx:id="button_forwardForce" mnemonicParsing="false">
+               <graphic>
+                  <FontAwesomeIconView glyphName="ANGLE_DOUBLE_RIGHT" />
+               </graphic>
+            </Button>
+         </children>
+      </HBox>
+      <Button fx:id="button_confirmAndToNext" mnemonicParsing="false" text="Подтвердить и перейти к следующему" AnchorPane.bottomAnchor="8.0" AnchorPane.rightAnchor="8.0" />
+   </children>
+</AnchorPane>
