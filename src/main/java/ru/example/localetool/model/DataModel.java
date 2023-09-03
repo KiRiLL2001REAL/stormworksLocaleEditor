@@ -5,14 +5,14 @@ import java.util.List;
 
 public class DataModel {
     private String filename;
-    private List<String> lines;
-    private long currentLine;
-    private long startLine;
-    private long finishLine;
+    private List<String> localeStrings;
+    private long currentStringIdx;
+    private final long startStringIdx;
 
     public DataModel() {
         filename = null;
-        lines = new ArrayList<>();
+        localeStrings = new ArrayList<>();
+        startStringIdx = 1;
     }
 
 
@@ -24,35 +24,27 @@ public class DataModel {
         this.filename = filename;
     }
 
-    public List<String> getLines() {
-        return lines;
+    public List<String> getLocaleStrings() {
+        return localeStrings;
     }
 
-    public void setLines(List<String> lines) {
-        this.lines = lines;
+    public void setLocaleStrings(List<String> localeStrings) {
+        this.localeStrings = localeStrings;
     }
 
-    public long getCurrentLine() {
-        return currentLine;
+    public long getCurrentStringIdx() {
+        return currentStringIdx;
     }
 
-    public void setCurrentLine(long current_line) {
-        this.currentLine = current_line;
+    public void setCurrentStringIdx(long current_line) {
+        this.currentStringIdx = current_line;
     }
 
-    public long getStartLine() {
-        return startLine;
+    public long getStartStringIdx() {
+        return startStringIdx;
     }
 
-    public void setStartLine(long startLine) {
-        this.startLine = startLine;
-    }
-
-    public long getFinishLine() {
-        return finishLine;
-    }
-
-    public void setFinishLine(long finishLine) {
-        this.finishLine = finishLine;
+    public long getLinesTotal() {
+        return localeStrings.size();
     }
 }

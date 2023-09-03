@@ -1,4 +1,4 @@
-package ru.example.localetool.model;
+package ru.example.localetool.model.config;
 
 import javafx.util.Pair;
 import org.ini4j.Ini;
@@ -62,7 +62,7 @@ public class GlobalConfigHolder {
         lastEditedLine = iniFile.get(LAST_EDITED_LINE.getKey(), LAST_EDITED_LINE.getValue(), long.class);
     }
 
-    public void storeConfig() throws IOException {
+    public boolean storeConfig() {
         try (FileOutputStream fos = new FileOutputStream(configFilename)) {
             Ini storedConfig = new Ini();
             storedConfig.put(SCENE_WIDTH.getKey(), SCENE_WIDTH.getValue(), sceneWidth);
@@ -70,7 +70,10 @@ public class GlobalConfigHolder {
             storedConfig.put(LAST_OPENED_FILE.getKey(), LAST_OPENED_FILE.getValue(), lastOpenedFile);
             storedConfig.put(LAST_EDITED_LINE.getKey(), LAST_EDITED_LINE.getValue(), lastEditedLine);
             storedConfig.store(fos);
+            return true;
+        } catch (IOException ignored) {
         }
+        return false;
     }
 
     private void createDefaultConfig() throws IOException {
