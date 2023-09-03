@@ -4,6 +4,7 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.stage.Stage;
 import ru.example.localetool.model.GlobalConfigHolder;
 
@@ -28,9 +29,17 @@ public class MainApplication extends Application {
             try {
                 GlobalConfigHolder.getInstance().storeConfig();
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                showWarningIfCanNotStoreConfig(e);
             }
         }));
+    }
+
+    protected void showWarningIfCanNotStoreConfig(Exception e) {
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle("LocaleTool");
+        alert.setHeaderText("");
+        alert.setContentText("Произошла ошибка сохранения конфигурационного файла.\n\n" + e.getMessage());
+        alert.showAndWait();
     }
 
     //public static boolean checkColumnCount(String line, int count) {
