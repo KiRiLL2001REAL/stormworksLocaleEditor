@@ -64,7 +64,7 @@ public class BusinessLogic {
     /**
      * Обёртка для чтения файла.
      * <p>Если не возникает ошибки, то обновляются данные в {@link DataModel} и конфигурационном файле программы.
-     * @param file Файл, откуда будет считаны строки локализации.
+     * @param file файл, откуда будет считаны строки локализации.
      * @throws Exception исключение является обобщением ошибки чтения файла.
      * <p>(Смотри список исключений {@link BusinessLogic#loadLocalizationFile(File)})
      */
@@ -81,11 +81,11 @@ public class BusinessLogic {
 
     /**
      * Считывает файл локализации Stormworks.
-     * @param file Файл, откуда будут считаны данные.
-     * @throws NullPointerException Если файл оказался null.
-     * @throws FileNotFoundException Если файл не найден.
-     * @throws SecurityException Если нет прав на чтение файла.
-     * @throws UnsupportedFileStructureException Если количество столбцов файла не равно 4, либо заголовок пустой.
+     * @param file файл, откуда будут считаны данные.
+     * @throws NullPointerException если файл оказался null.
+     * @throws FileNotFoundException если файл не найден.
+     * @throws SecurityException если нет прав на чтение файла.
+     * @throws UnsupportedFileStructureException если количество столбцов файла не равно 4, либо заголовок пустой.
      * @return {@link ArrayList} типа {@link String}, содержащий строки файла локализации без заголовка.
      */
     private ArrayList<String> loadLocalizationFile(File file)
