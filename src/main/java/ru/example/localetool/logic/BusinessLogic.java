@@ -7,6 +7,7 @@ import ru.example.localetool.model.config.GlobalConfigHolder;
 import ru.example.localetool.model.exception.UnsupportedFileStructureException;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
 public class BusinessLogic {
@@ -44,8 +45,9 @@ public class BusinessLogic {
 
     /**
      * Функция, загружающая строки из последнего редактированного файла.
+     * <p>Если файл не найден, удаляет сведения о нём из конфигурационного файла программы.
      * @throws Exception исключение является обобщением ошибки чтения файла.
-     * <p>(Смотри список исключений {@link BusinessLogic#loadLocalizationFile})
+     * <p>(Смотри список исключений {@link BusinessLogic#loadLocalizationFile(File)})
      */
     protected void onFileRecentOpenLogic() throws Exception {
         File selectedFile = new File(GlobalConfigHolder.getInstance().getLastOpenedFile());
@@ -64,7 +66,7 @@ public class BusinessLogic {
      * <p>Если не возникает ошибки, то обновляются данные в {@link DataModel} и конфигурационном файле программы.
      * @param file Файл, откуда будет считаны строки локализации.
      * @throws Exception исключение является обобщением ошибки чтения файла.
-     * <p>(Смотри список исключений {@link BusinessLogic#loadLocalizationFile})
+     * <p>(Смотри список исключений {@link BusinessLogic#loadLocalizationFile(File)})
      */
     private void loadLocalizationFileWrapper(File file) throws Exception {
         // Если загрузка файла удалась
@@ -94,8 +96,7 @@ public class BusinessLogic {
         String line = null;
         try {
             line = br.readLine();
-        } catch (IOException ignored) {
-        }
+        } catch (IOException ignored) {}
         if (line == null)
             throw new UnsupportedFileStructureException("File is empty.");
         // При чтении первой строки проверяем, что в файле 4 колонки (разделитель - табуляция)
@@ -111,8 +112,61 @@ public class BusinessLogic {
             while ((line = br.readLine()) != null)
                 localeStrings.add(line);
             br.close();
-        } catch (IOException ignored) {
-        }
+        } catch (IOException ignored) {}
         return localeStrings;
+    }
+
+    /**
+     * Сохраняет файл локализации по пути, который содержится в классе {@link DataModel}.
+     * @throws Exception исключение является обобщением ошибки записи файла.
+     * <p>(Смотри список исключений {@link BusinessLogic#saveLocalizationFile(File)})
+     */
+    protected void onFileSaveLogic() throws Exception {
+        try {
+            saveLocalizationFile(new File(data.getFilename()));
+        } catch (NullPointerException ignore) {
+        }
+    }
+
+    /**
+     * Сохраняет файл локализации в выбранный файл.
+     * @throws Exception исключение является обобщением ошибки записи файла.
+     * <p>(Смотри список исключений {@link BusinessLogic#saveLocalizationFile(File)})
+     */
+    protected void onFileSaveAsLogic() throws Exception {
+        String lastOpenedFile = GlobalConfigHolder.getInstance().getLastOpenedFile();
+        File initialDirectory = lastOpenedFile.isBlank() ?
+                new File(System.getProperty("user.dir"))
+                : new File(lastOpenedFile.substring(0, lastOpenedFile.lastIndexOf('\\')));
+
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Сохранить файл локализации...");
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("Tab Separated Values", "*.tsv"),
+                new FileChooser.ExtensionFilter("All files", "*.*"));
+        fileChooser.setInitialDirectory(initialDirectory);
+
+        File selectedFile = fileChooser.showSaveDialog(new Stage());
+        saveLocalizationFile(selectedFile);
+    }
+
+    /**
+     * Сохраняет локализацию в указанный файл.
+     * @param file файл, в который будут сохранены данные.
+     * @throws NullPointerException если передан null аргумент.
+     * @throws FileNotFoundException если указанный файл является директорией.
+     * @throws SecurityException если нет прав на запись в файл.
+     */
+    private void saveLocalizationFile(File file)
+            throws NullPointerException, FileNotFoundException, SecurityException
+    {
+        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(
+                new FileOutputStream(file), StandardCharsets.UTF_8));
+        try {
+            bw.write(data.getHeader() + '\n');
+            for (String line : data.getLocaleStrings())
+                bw.write(line + '\n');
+            bw.close();
+        } catch (IOException ignored) {}
     }
 }

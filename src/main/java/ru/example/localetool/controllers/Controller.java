@@ -1,6 +1,5 @@
 package ru.example.localetool.controllers;
 
-import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
@@ -107,6 +106,30 @@ public class Controller extends BusinessLogic implements Initializable {
                 }
                 else if (e instanceof SecurityException)
                     DialogFactory.buildWarningDialog("Нет прав доступа к выбранному файлу.").showAndWait();
+            }
+        });
+        mi_file_save.setOnAction(event -> {
+            try {
+                onFileSaveLogic();
+            } catch (Exception e) {
+                String message = "что-то пошло не так.";
+                if (e instanceof SecurityException)
+                    message = "нет прав доступа к выбранному файлу.";
+                DialogFactory.buildWarningDialog("Произошла ошибка сохранения: " + message).showAndWait();
+            }
+        });
+        mi_file_saveAs.setOnAction(event -> {
+            try {
+                onFileSaveAsLogic();
+            } catch (Exception e) {
+                if (e instanceof NullPointerException)
+                    return;
+                String message = "что-то пошло не так.";
+                if (e instanceof FileNotFoundException)
+                    message = "файл является директорией.";
+                else if (e instanceof SecurityException)
+                    message = "нет прав доступа к выбранному файлу.";
+                DialogFactory.buildWarningDialog("Произошла ошибка сохранения: " + message).showAndWait();
             }
         });
     }
