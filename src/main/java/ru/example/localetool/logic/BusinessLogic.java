@@ -40,7 +40,8 @@ public class BusinessLogic {
     protected void onFileOpenLogic(File file) throws Exception {
         String fileAbsolutePath = file.getAbsolutePath();
         try {
-            data.setLocaleStrings(DataModelUtility.loadLocalization(file));
+            List<String> localeStrings = DataModelUtility.loadLocalization(file);
+            DataModelUtility.setLocaleStrings(data, localeStrings);
             data.setFilename(fileAbsolutePath);
             GlobalConfigHolder config = GlobalConfigHolder.getInstance();
             if (!config.getLastOpenedFile().equals(fileAbsolutePath)) {

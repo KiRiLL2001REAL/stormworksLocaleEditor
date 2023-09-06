@@ -8,6 +8,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DataModelUtility {
+    /** Количество подстрок-столбцов, содержащихся в одной строке файла локализации. */
+    private static final int SUBSTRING_COUNT = 4;
+
     /**
      * Считывает файл локализации Stormworks из указанного файла.
      * @param file файл, откуда будут считаны данные.
@@ -31,12 +34,7 @@ public class DataModelUtility {
             throw new UnsupportedFileStructureException("File is empty.");
         localeStrings.add(line);
         // При чтении первой строки проверяем, что в файле 4 колонки (разделитель - табуляция)
-        int columnCount = 1;
-        for (int i = 0; i < line.length(); i++)
-            if (line.charAt(i) == '\t')
-                columnCount += 1;
-        if (columnCount != 4)
-            throw new UnsupportedFileStructureException("Number of columns in the localization file differs from 4.");
+        splitLocaleString(line);
         // Считываем строки локализации из файла
         while ((line = br.readLine()) != null)
             localeStrings.add(line);
@@ -64,5 +62,65 @@ public class DataModelUtility {
         bw.close();
     }
 
+    /**
+     * Разделяет строку локализации Stormworks на 4 части.
+     *
+     * @param localeString строка локализации.
+     *
+     * @return 4 подстроки, полученные путём разделения исходной по символу
+     * табуляции:
+     * <p>id, description, en, local.
+     *
+     * @throws UnsupportedFileStructureException если количество символов
+     * табуляции в строке отличается от 3.
+     */
+    public static String[] splitLocaleString(String localeString) throws UnsupportedFileStructureException {
+        String[] result = new String[SUBSTRING_COUNT];
 
+        byte[] bytes = localeString.getBytes(StandardCharsets.UTF_8);
+        int currentIdx = 0;
+
+        int cut = 0;
+        int tabIdx = indexOfChar(bytes, '\t', currentIdx, bytes.length);
+        while (cut < SUBSTRING_COUNT - 1 && tabIdx != -1) {
+            result[cut] = new String(bytes, currentIdx, tabIdx - currentIdx, StandardCharsets.UTF_8);
+            cut += 1;
+            currentIdx = tabIdx + 1;
+            tabIdx = indexOfChar(bytes, '\t', currentIdx, bytes.length);
+        }
+        result[cut] = new String(bytes, currentIdx, bytes.length - currentIdx, StandardCharsets.UTF_8);
+        cut += 1;
+
+        if (tabIdx != -1 || cut != SUBSTRING_COUNT)
+            throw new UnsupportedFileStructureException("Number of columns in the localization file differs from 4.");
+
+        return result;
+    }
+
+    private static int indexOfChar(byte[] value, int ch, int fromIdx, int max) {
+        byte c = (byte) ch;
+        for (int i = fromIdx; i < max; i++)
+            if (value[i] == c)
+                return i;
+        return -1;
+    }
+
+    public static void setLocaleStrings(DataModel dataModel, List<String> localeStrings)
+            throws UnsupportedFileStructureException
+    {
+        ArrayList<ArrayList<String>> parsedData = new ArrayList<>();
+        for (int i = 0; i < SUBSTRING_COUNT; i++)
+            parsedData.add(new ArrayList<>());
+
+        for (String localeString : localeStrings) {
+            String[] items = splitLocaleString(localeString);
+            for (int i = 0; i < SUBSTRING_COUNT; i++)
+                parsedData.get(i).add(items[i]);
+        }
+
+        dataModel.setIds(parsedData.get(0));
+        dataModel.setDescriptions(parsedData.get(1));
+        dataModel.setEns(parsedData.get(2));
+        dataModel.setLocales(parsedData.get(3));
+    }
 }
