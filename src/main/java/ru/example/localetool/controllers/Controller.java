@@ -1,12 +1,16 @@
 package ru.example.localetool.controllers;
 
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
+import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 import ru.example.localetool.logic.BusinessLogic;
 import ru.example.localetool.model.config.GlobalConfigHolder;
 import ru.example.localetool.model.exception.UnsupportedFileStructureException;
@@ -132,6 +136,10 @@ public class Controller extends BusinessLogic implements Initializable {
                 DialogFactory.buildWarningDialog("Произошла ошибка сохранения: " + message).showAndWait();
             }
         });
+        mi_file_quit.setOnAction(event -> {
+            Stage stage = (Stage) workspace.getScene().getWindow();
+            stage.fireEvent(new WindowEvent(stage, WindowEvent.WINDOW_CLOSE_REQUEST));
+        });
     }
 
     private void initWorkspaceActions() {
@@ -150,5 +158,10 @@ public class Controller extends BusinessLogic implements Initializable {
     private void setMenuSaveEnable(boolean enable) {
         mi_file_save.setDisable(!enable);
         mi_file_saveAs.setDisable(!enable);
+    }
+
+    // Forwarding function for use in MainApplication
+    public boolean canShutdown() {
+        return onExitLogic();
     }
 }

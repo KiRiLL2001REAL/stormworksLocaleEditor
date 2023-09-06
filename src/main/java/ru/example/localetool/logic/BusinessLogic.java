@@ -1,14 +1,17 @@
 package ru.example.localetool.logic;
 
+import javafx.scene.control.ButtonType;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import ru.example.localetool.model.DataModel;
 import ru.example.localetool.model.config.GlobalConfigHolder;
 import ru.example.localetool.model.exception.UnsupportedFileStructureException;
+import ru.example.localetool.view.DialogFactory;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Optional;
 
 public class BusinessLogic {
     private DataModel data;
@@ -168,5 +171,16 @@ public class BusinessLogic {
                 bw.write(line + '\n');
             bw.close();
         } catch (IOException ignored) {}
+    }
+
+    // TODO: javadoc.
+    protected boolean onExitLogic() {
+        // TODO: переместить функционал открытия и сохранения файла локализации в отдельный Utility класс,
+        //  добавить публичный метод isChanged в DataModel, и использовать его здесь для принятия решения
+        //  показывать ли диалог-подтверждение.
+        Optional<ButtonType> result = DialogFactory.buildConfirmationDialog("Вы уверены, что хотите выйти? " +
+                "Все несохранённые изменения будут утеряны.")
+                .showAndWait();
+        return result.isPresent() && result.get() == ButtonType.OK;
     }
 }
