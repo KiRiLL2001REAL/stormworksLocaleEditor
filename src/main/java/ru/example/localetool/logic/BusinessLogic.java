@@ -4,13 +4,12 @@ import javafx.scene.control.ButtonType;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import ru.example.localetool.model.DataModel;
+import ru.example.localetool.model.DataModelUtility;
 import ru.example.localetool.model.config.GlobalConfigHolder;
-import ru.example.localetool.model.exception.UnsupportedFileStructureException;
 import ru.example.localetool.view.DialogFactory;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 public class BusinessLogic {
@@ -26,8 +25,17 @@ public class BusinessLogic {
 
     /**
      * Функция, загружающая строки из файла, выбираемого пользователем.
+     * <p>
+     * При успешном открытии файла, в {@link DataModel модель} помещается его содержимое.
+     * Так же путь к файлу прописывается в {@link GlobalConfigHolder конфигурационном файле} и в самой
+     * {@link DataModel модели}.
+     *
      * @throws Exception исключение является обобщением ошибки чтения файла.
-     * <p>(Смотри список исключений {@link BusinessLogic#loadLocalizationFile})
+     * (Смотри список исключений {@link DataModelUtility#loadLocalization(File)})
+     *
+     * @see DataModel#getLocaleStrings()
+     * @see DataModel#getFilename()
+     * @see GlobalConfigHolder#getLastOpenedFile()
      */
     protected void onFileOpenLogic() throws Exception {
         String lastOpenedFile = GlobalConfigHolder.getInstance().getLastOpenedFile();
@@ -43,19 +51,27 @@ public class BusinessLogic {
         fileChooser.setInitialDirectory(initialDirectory);
 
         File selectedFile = fileChooser.showOpenDialog(new Stage());
-        loadLocalizationFileWrapper(selectedFile);
+        String fileAbsolutePath = selectedFile.getAbsolutePath();
+
+        data.setLocaleStrings(DataModelUtility.loadLocalization(selectedFile));
+        data.setFilename(fileAbsolutePath);
+        GlobalConfigHolder.getInstance().setLastOpenedFile(fileAbsolutePath);
+        GlobalConfigHolder.getInstance().storeConfig();
     }
 
     /**
      * Функция, загружающая строки из последнего редактированного файла.
-     * <p>Если файл не найден, удаляет сведения о нём из конфигурационного файла программы.
+     * <p>
+     * Если файл не найден, удаляет сведения о нём из конфигурационного файла программы.
+     *
      * @throws Exception исключение является обобщением ошибки чтения файла.
-     * <p>(Смотри список исключений {@link BusinessLogic#loadLocalizationFile(File)})
+     * <p>(Смотри список исключений {@link DataModelUtility#loadLocalization(File)})
      */
     protected void onFileRecentOpenLogic() throws Exception {
         File selectedFile = new File(GlobalConfigHolder.getInstance().getLastOpenedFile());
         try {
-            loadLocalizationFileWrapper(selectedFile);
+            data.setLocaleStrings(DataModelUtility.loadLocalization(selectedFile));
+            data.setFilename(selectedFile.getAbsolutePath());
         } catch (FileNotFoundException e) {
             GlobalConfigHolder.getInstance().setLastOpenedFile("");
             GlobalConfigHolder.getInstance().setLastEditedLine(1);
@@ -65,76 +81,22 @@ public class BusinessLogic {
     }
 
     /**
-     * Обёртка для чтения файла.
-     * <p>Если не возникает ошибки, то обновляются данные в {@link DataModel} и конфигурационном файле программы.
-     * @param file файл, откуда будет считаны строки локализации.
+     * Функция, сохраняющая строки текущего редактируемого файла на диск.
      * @throws Exception исключение является обобщением ошибки чтения файла.
-     * <p>(Смотри список исключений {@link BusinessLogic#loadLocalizationFile(File)})
-     */
-    private void loadLocalizationFileWrapper(File file) throws Exception {
-        // Если загрузка файла удалась
-        ArrayList<String> localeStrings = loadLocalizationFile(file);
-        // Записываем строки локализации в DataModel
-        data.setLocaleStrings(localeStrings);
-        // Записываем путь до него в DataModel и в конфигурационный файл
-        data.setFilename(file.getAbsolutePath());
-        GlobalConfigHolder.getInstance().setLastOpenedFile(data.getFilename());
-        GlobalConfigHolder.getInstance().storeConfig();
-    }
-
-    /**
-     * Считывает файл локализации Stormworks.
-     * @param file файл, откуда будут считаны данные.
-     * @throws NullPointerException если файл оказался null.
-     * @throws FileNotFoundException если файл не найден.
-     * @throws SecurityException если нет прав на чтение файла.
-     * @throws UnsupportedFileStructureException если количество столбцов файла не равно 4, либо заголовок пустой.
-     * @return {@link ArrayList} типа {@link String}, содержащий строки файла локализации без заголовка.
-     */
-    private ArrayList<String> loadLocalizationFile(File file)
-            throws NullPointerException, FileNotFoundException, SecurityException, UnsupportedFileStructureException
-    {
-        BufferedReader br = new BufferedReader(new InputStreamReader(
-                new FileInputStream(file), java.nio.charset.StandardCharsets.UTF_8));
-        String line = null;
-        try {
-            line = br.readLine();
-        } catch (IOException ignored) {}
-        if (line == null)
-            throw new UnsupportedFileStructureException("File is empty.");
-        // При чтении первой строки проверяем, что в файле 4 колонки (разделитель - табуляция)
-        int columnCount = 1;
-        for (int i = 0; i < line.length(); i++)
-            if (line.charAt(i) == '\t')
-                columnCount += 1;
-        if (columnCount != 4)
-            throw new UnsupportedFileStructureException("Number of columns in the localization file differs from 4.");
-        // Считываем строки локализации из файла
-        ArrayList<String> localeStrings = new ArrayList<>();
-        try {
-            while ((line = br.readLine()) != null)
-                localeStrings.add(line);
-            br.close();
-        } catch (IOException ignored) {}
-        return localeStrings;
-    }
-
-    /**
-     * Сохраняет файл локализации по пути, который содержится в классе {@link DataModel}.
-     * @throws Exception исключение является обобщением ошибки записи файла.
-     * <p>(Смотри список исключений {@link BusinessLogic#saveLocalizationFile(File)})
+     * <p>(Смотри список исключений {@link DataModelUtility#storeLocalization(List, File)})
      */
     protected void onFileSaveLogic() throws Exception {
         try {
-            saveLocalizationFile(new File(data.getFilename()));
+            File selectedFile = new File(data.getFilename());
+            DataModelUtility.storeLocalization(data.getLocaleStrings(), selectedFile);
         } catch (NullPointerException ignore) {
         }
     }
 
     /**
-     * Сохраняет файл локализации в выбранный файл.
-     * @throws Exception исключение является обобщением ошибки записи файла.
-     * <p>(Смотри список исключений {@link BusinessLogic#saveLocalizationFile(File)})
+     * Функция, сохраняющая строки текущего редактируемого файла на диск в выбранный пользователем место.
+     * @throws Exception исключение является обобщением ошибки чтения файла.
+     * <p>(Смотри список исключений {@link DataModelUtility#storeLocalization(List, File)})
      */
     protected void onFileSaveAsLogic() throws Exception {
         String lastOpenedFile = GlobalConfigHolder.getInstance().getLastOpenedFile();
@@ -150,33 +112,13 @@ public class BusinessLogic {
         fileChooser.setInitialDirectory(initialDirectory);
 
         File selectedFile = fileChooser.showSaveDialog(new Stage());
-        saveLocalizationFile(selectedFile);
-    }
 
-    /**
-     * Сохраняет локализацию в указанный файл.
-     * @param file файл, в который будут сохранены данные.
-     * @throws NullPointerException если передан null аргумент.
-     * @throws FileNotFoundException если указанный файл является директорией.
-     * @throws SecurityException если нет прав на запись в файл.
-     */
-    private void saveLocalizationFile(File file)
-            throws NullPointerException, FileNotFoundException, SecurityException
-    {
-        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(
-                new FileOutputStream(file), StandardCharsets.UTF_8));
-        try {
-            bw.write(data.getHeader() + '\n');
-            for (String line : data.getLocaleStrings())
-                bw.write(line + '\n');
-            bw.close();
-        } catch (IOException ignored) {}
+        DataModelUtility.storeLocalization(data.getLocaleStrings(), selectedFile);
     }
 
     // TODO: javadoc.
     protected boolean onExitLogic() {
-        // TODO: переместить функционал открытия и сохранения файла локализации в отдельный Utility класс,
-        //  добавить публичный метод isChanged в DataModel, и использовать его здесь для принятия решения
+        // TODO: добавить публичный метод isChanged в DataModel, и использовать его здесь для принятия решения
         //  показывать ли диалог-подтверждение.
         Optional<ButtonType> result = DialogFactory.buildConfirmationDialog("Вы уверены, что хотите выйти? " +
                 "Все несохранённые изменения будут утеряны.")

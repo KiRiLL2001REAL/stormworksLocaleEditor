@@ -5,15 +5,13 @@ import java.util.List;
 
 public class DataModel {
     private String filename;
-    private final String HEADER;
     private List<String> localeStrings;
     private long currentStringIdx;
     private final long startStringIdx;
 
     public DataModel() {
         filename = null;
-        HEADER = "id\tdescription\ten\tlocal";
-        localeStrings = new ArrayList<>();
+        localeStrings = null;
         startStringIdx = 1;
     }
 
@@ -27,7 +25,9 @@ public class DataModel {
     }
 
     public String getHeader() {
-        return HEADER;
+        if (localeStrings == null || localeStrings.size() == 0)
+            return null;
+        return localeStrings.get(0);
     }
 
     public List<String> getLocaleStrings() {
