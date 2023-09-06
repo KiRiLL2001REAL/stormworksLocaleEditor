@@ -1,7 +1,6 @@
 package ru.example.localetool;
 
 import javafx.application.Application;
-import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
@@ -30,7 +29,7 @@ public class MainApplication extends Application {
             if (controller.canShutdown()) {
                 GlobalConfigHolder.getInstance().setSceneWidth(stage.getWidth());
                 GlobalConfigHolder.getInstance().setSceneHeight(stage.getHeight());
-                if (!GlobalConfigHolder.getInstance().storeConfig())
+                if (!GlobalConfigHolder.getInstance().store())
                     DialogFactory.buildWarningDialog("Произошла ошибка сохранения конфигурационного файла.")
                             .showAndWait();
             } else

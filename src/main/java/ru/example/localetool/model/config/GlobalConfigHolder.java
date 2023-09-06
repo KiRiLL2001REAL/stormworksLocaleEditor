@@ -35,7 +35,7 @@ public class GlobalConfigHolder {
         //   Если возникла ошибка вида FileNotFound, то файл ещё не создан и его необходимо проинициализировать
         // начальными значениями, в противном случае - кидается исключение.
         try (FileInputStream fis = new FileInputStream(configFilename)) {
-            loadConfig(new Ini(fis));
+            load(new Ini(fis));
             success = true;
         } catch (IOException e) {
             if (!(e instanceof FileNotFoundException)) {
@@ -47,7 +47,7 @@ public class GlobalConfigHolder {
             try {
                 createDefaultConfig();
                 try (FileInputStream fis = new FileInputStream(configFilename)) {
-                    loadConfig(new Ini(fis));
+                    load(new Ini(fis));
                 }
             } catch (IOException e) {
                 throw new RuntimeException(e);
@@ -55,14 +55,14 @@ public class GlobalConfigHolder {
         }
     }
 
-    private void loadConfig(Ini iniFile) {
+    private void load(Ini iniFile) {
         sceneWidth = iniFile.get(SCENE_WIDTH.getKey(), SCENE_WIDTH.getValue(), double.class);
         sceneHeight = iniFile.get(SCENE_HEIGHT.getKey(), SCENE_HEIGHT.getValue(), double.class);
         lastOpenedFile = iniFile.get(LAST_OPENED_FILE.getKey(), LAST_OPENED_FILE.getValue(), String.class);
         lastEditedLine = iniFile.get(LAST_EDITED_LINE.getKey(), LAST_EDITED_LINE.getValue(), long.class);
     }
 
-    public boolean storeConfig() {
+    public boolean store() {
         try (FileOutputStream fos = new FileOutputStream(configFilename)) {
             Ini storedConfig = new Ini();
             storedConfig.put(SCENE_WIDTH.getKey(), SCENE_WIDTH.getValue(), sceneWidth);
@@ -81,7 +81,7 @@ public class GlobalConfigHolder {
         sceneHeight = 480f;
         lastOpenedFile = "";
         lastEditedLine = 1;
-        storeConfig();
+        store();
     }
 
     public double getSceneWidth() {

@@ -1,8 +1,6 @@
 package ru.example.localetool.logic;
 
 import javafx.scene.control.ButtonType;
-import javafx.stage.FileChooser;
-import javafx.stage.Stage;
 import ru.example.localetool.model.DataModel;
 import ru.example.localetool.model.DataModelUtility;
 import ru.example.localetool.model.config.GlobalConfigHolder;
@@ -47,12 +45,12 @@ public class BusinessLogic {
             GlobalConfigHolder config = GlobalConfigHolder.getInstance();
             if (!config.getLastOpenedFile().equals(fileAbsolutePath)) {
                 GlobalConfigHolder.getInstance().setLastOpenedFile(fileAbsolutePath);
-                GlobalConfigHolder.getInstance().storeConfig();
+                GlobalConfigHolder.getInstance().store();
             }
         } catch (FileNotFoundException e) {
             GlobalConfigHolder.getInstance().setLastOpenedFile("");
             GlobalConfigHolder.getInstance().setLastEditedLine(1);
-            GlobalConfigHolder.getInstance().storeConfig();
+            GlobalConfigHolder.getInstance().store();
             throw e;
         }
     }
