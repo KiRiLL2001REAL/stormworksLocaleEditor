@@ -24,11 +24,13 @@ public class BusinessLogic {
     }
 
     /**
-     * Функция, загружающая строки из файла, выбираемого пользователем.
+     * Функция, загружающая строки локализации из указанного файла в {@link DataModel модель}.
      * <p>
      * При успешном открытии файла, в {@link DataModel модель} помещается его содержимое.
-     * Так же путь к файлу прописывается в {@link GlobalConfigHolder конфигурационном файле} и в самой
+     * Также путь к файлу прописывается в {@link GlobalConfigHolder конфигурационном файле} и в самой
      * {@link DataModel модели}.
+     *
+     * @param file файл локализации Stormworks.
      *
      * @throws Exception исключение является обобщением ошибки чтения файла.
      * (Смотри список исключений {@link DataModelUtility#loadLocalization(File)})
@@ -37,41 +39,16 @@ public class BusinessLogic {
      * @see DataModel#getFilename()
      * @see GlobalConfigHolder#getLastOpenedFile()
      */
-    protected void onFileOpenLogic() throws Exception {
-        String lastOpenedFile = GlobalConfigHolder.getInstance().getLastOpenedFile();
-        File initialDirectory = lastOpenedFile.isBlank() ?
-                new File(System.getProperty("user.dir"))
-                : new File(lastOpenedFile.substring(0, lastOpenedFile.lastIndexOf('\\')));
-
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Открыть файл локализации...");
-        fileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("Tab Separated Values", "*.tsv"),
-                new FileChooser.ExtensionFilter("All files", "*.*"));
-        fileChooser.setInitialDirectory(initialDirectory);
-
-        File selectedFile = fileChooser.showOpenDialog(new Stage());
-        String fileAbsolutePath = selectedFile.getAbsolutePath();
-
-        data.setLocaleStrings(DataModelUtility.loadLocalization(selectedFile));
-        data.setFilename(fileAbsolutePath);
-        GlobalConfigHolder.getInstance().setLastOpenedFile(fileAbsolutePath);
-        GlobalConfigHolder.getInstance().storeConfig();
-    }
-
-    /**
-     * Функция, загружающая строки из последнего редактированного файла.
-     * <p>
-     * Если файл не найден, удаляет сведения о нём из конфигурационного файла программы.
-     *
-     * @throws Exception исключение является обобщением ошибки чтения файла.
-     * <p>(Смотри список исключений {@link DataModelUtility#loadLocalization(File)})
-     */
-    protected void onFileRecentOpenLogic() throws Exception {
-        File selectedFile = new File(GlobalConfigHolder.getInstance().getLastOpenedFile());
+    protected void onFileOpenLogic(File file) throws Exception {
+        String fileAbsolutePath = file.getAbsolutePath();
         try {
-            data.setLocaleStrings(DataModelUtility.loadLocalization(selectedFile));
-            data.setFilename(selectedFile.getAbsolutePath());
+            data.setLocaleStrings(DataModelUtility.loadLocalization(file));
+            data.setFilename(fileAbsolutePath);
+            GlobalConfigHolder config = GlobalConfigHolder.getInstance();
+            if (!config.getLastOpenedFile().equals(fileAbsolutePath)) {
+                GlobalConfigHolder.getInstance().setLastOpenedFile(fileAbsolutePath);
+                GlobalConfigHolder.getInstance().storeConfig();
+            }
         } catch (FileNotFoundException e) {
             GlobalConfigHolder.getInstance().setLastOpenedFile("");
             GlobalConfigHolder.getInstance().setLastEditedLine(1);
@@ -81,39 +58,19 @@ public class BusinessLogic {
     }
 
     /**
-     * Функция, сохраняющая строки текущего редактируемого файла на диск.
+     * Функция, записывающая строки локализации на диск в указанный файл.
+     *
+     * @param file файл, в который будет сохранена локализация Stormworks.
+     *
      * @throws Exception исключение является обобщением ошибки чтения файла.
      * <p>(Смотри список исключений {@link DataModelUtility#storeLocalization(List, File)})
+     * <p>Примечание: {@link NullPointerException} подавляется.
      */
-    protected void onFileSaveLogic() throws Exception {
+    protected void onFileSaveLogic(File file) throws Exception {
         try {
-            File selectedFile = new File(data.getFilename());
-            DataModelUtility.storeLocalization(data.getLocaleStrings(), selectedFile);
+            DataModelUtility.storeLocalization(data.getLocaleStrings(), file);
         } catch (NullPointerException ignore) {
         }
-    }
-
-    /**
-     * Функция, сохраняющая строки текущего редактируемого файла на диск в выбранный пользователем место.
-     * @throws Exception исключение является обобщением ошибки чтения файла.
-     * <p>(Смотри список исключений {@link DataModelUtility#storeLocalization(List, File)})
-     */
-    protected void onFileSaveAsLogic() throws Exception {
-        String lastOpenedFile = GlobalConfigHolder.getInstance().getLastOpenedFile();
-        File initialDirectory = lastOpenedFile.isBlank() ?
-                new File(System.getProperty("user.dir"))
-                : new File(lastOpenedFile.substring(0, lastOpenedFile.lastIndexOf('\\')));
-
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Сохранить файл локализации...");
-        fileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("Tab Separated Values", "*.tsv"),
-                new FileChooser.ExtensionFilter("All files", "*.*"));
-        fileChooser.setInitialDirectory(initialDirectory);
-
-        File selectedFile = fileChooser.showSaveDialog(new Stage());
-
-        DataModelUtility.storeLocalization(data.getLocaleStrings(), selectedFile);
     }
 
     // TODO: javadoc.
