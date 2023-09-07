@@ -66,6 +66,7 @@ public class BusinessLogic {
     protected void onFileSaveLogic(File file) throws Exception {
         try {
             DataModelUtility.storeLocalization(data.getLocaleStrings(), file);
+            getData().flushChanged();
         } catch (NullPointerException ignore) {
         }
     }

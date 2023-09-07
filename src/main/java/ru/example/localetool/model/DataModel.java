@@ -1,10 +1,12 @@
 package ru.example.localetool.model;
 
+import javafx.beans.property.SimpleBooleanProperty;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class DataModel {
-    private boolean changed;
+    private final SimpleBooleanProperty changed;
     private String filename;
     private List<String> ids;
     private List<String> descriptions;
@@ -14,7 +16,7 @@ public class DataModel {
     private final long startStringIdx;
 
     public DataModel() {
-        changed = false;
+        changed = new SimpleBooleanProperty(false);
 
         filename = null;
 
@@ -30,12 +32,16 @@ public class DataModel {
 
     // GETTERS AND SETTERS SECTION
 
-    public boolean isChanged() {
+    public SimpleBooleanProperty changedProperty() {
         return changed;
     }
 
+    public boolean isChanged() {
+        return changed.get();
+    }
+
     public void flushChanged() {
-        changed = false;
+        changed.set(false);
     }
 
     public String getFilename() {
@@ -89,7 +95,7 @@ public class DataModel {
             System.out.println("setLocale by incorrect idx, or localization is not loaded yet.");
             return;
         }
-        changed = true;
+        changed.set(true);
         locales.set(idx, locale);
     }
 

@@ -81,10 +81,13 @@ public class Controller extends BusinessLogic implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        setWorkspaceEnable(false);
-        setMenuSaveEnable(false);
+        workspace.setDisable(true);
+        navbar.setDisable(true);
+        mi_file_save.setDisable(true);
+        mi_file_saveAs.setDisable(true);
 
-        if (GlobalConfigHolder.getInstance().getLastOpenedFile().isBlank())
+        GlobalConfigHolder config = GlobalConfigHolder.getInstance();
+        if (config.getLastOpenedFile().isBlank())
             mi_file_openRecent.setDisable(true);
 
         initMenuActions();
@@ -98,6 +101,9 @@ public class Controller extends BusinessLogic implements Initializable {
         mi_file_save.setOnAction(event -> onFileSavePressed());
         mi_file_saveAs.setOnAction(event -> onFileSaveAsPressed());
         mi_file_quit.setOnAction(event -> onQuitPressed());
+
+        // Если данные не изменены, опция сохранения становится неактивной.
+        getData().changedProperty().addListener((observableValue, oldVal, newVal) -> mi_file_save.setDisable(!newVal));
     }
 
     private void initWorkspaceActions() {
@@ -108,18 +114,11 @@ public class Controller extends BusinessLogic implements Initializable {
 
     }
 
-    private void setWorkspaceEnable(boolean enable) {
-        workspace.setDisable(!enable);
-        navbar.setDisable(!enable);
-    }
-
-    private void setMenuSaveEnable(boolean enable) {
-        mi_file_save.setDisable(!enable);
-        mi_file_saveAs.setDisable(!enable);
-    }
-
     @FXML
     protected void onFileOpenPressed() {
+        if (getData().isChanged() && !checkIfUserWantOpenWithoutSaving())
+            return;
+
         String lastOpenedFile = GlobalConfigHolder.getInstance().getLastOpenedFile();
         File initialDirectory = lastOpenedFile.isBlank() ?
                 new File(System.getProperty("user.dir"))
@@ -136,10 +135,7 @@ public class Controller extends BusinessLogic implements Initializable {
 
         try {
             onFileOpenLogic(selectedFile);
-            setWorkspaceEnable(true);
-            setMenuSaveEnable(true);
-            mi_file_openRecent.setDisable(false);
-            textarea_translated.requestFocus();
+            setupComponentsOnSuccessfulOpenFile();
         } catch (Exception e) {
             if (e instanceof NullPointerException)
                 DialogFactory.buildWarningDialog("Файл локализации не был выбран.").showAndWait();
@@ -153,13 +149,13 @@ public class Controller extends BusinessLogic implements Initializable {
 
     @FXML
     protected void onFileOpenRecentPressed() {
+        if (getData().isChanged() && !checkIfUserWantOpenWithoutSaving())
+            return;
+
         try {
             File file = new File(GlobalConfigHolder.getInstance().getLastOpenedFile());
-
             onFileOpenLogic(file);
-            setWorkspaceEnable(true);
-            setMenuSaveEnable(true);
-            textarea_translated.requestFocus();
+            setupComponentsOnSuccessfulOpenFile();
         } catch (Exception e) {
             mi_file_openRecent.setDisable(true);
             if (e instanceof FileNotFoundException) {
@@ -169,6 +165,22 @@ public class Controller extends BusinessLogic implements Initializable {
             else if (e instanceof SecurityException)
                 DialogFactory.buildWarningDialog("Нет прав доступа к выбранному файлу.").showAndWait();
         }
+    }
+
+    private void setupComponentsOnSuccessfulOpenFile() {
+        workspace.setDisable(false);
+        navbar.setDisable(false);
+        mi_file_save.setDisable(true);
+        mi_file_saveAs.setDisable(false);
+        mi_file_openRecent.setDisable(false);
+        textarea_translated.requestFocus();
+    }
+
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
+    protected boolean checkIfUserWantOpenWithoutSaving() {
+        Optional<ButtonType> result = DialogFactory.buildConfirmationDialog("В данном файле имеются " +
+                "несохранённые изменения. Вы действительно хотите открыть другой файл без сохранения?").showAndWait();
+        return result.isPresent() && result.get() == ButtonType.OK;
     }
 
     @FXML
