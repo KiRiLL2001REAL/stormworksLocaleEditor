@@ -1,14 +1,11 @@
 package ru.example.localetool.logic;
 
-import javafx.scene.control.ButtonType;
 import ru.example.localetool.model.DataModel;
 import ru.example.localetool.model.DataModelUtility;
 import ru.example.localetool.model.config.GlobalConfigHolder;
-import ru.example.localetool.view.DialogFactory;
 
 import java.io.*;
 import java.util.List;
-import java.util.Optional;
 
 public class BusinessLogic {
     private DataModel data;
@@ -38,20 +35,21 @@ public class BusinessLogic {
      * @see GlobalConfigHolder#getLastOpenedFile()
      */
     protected void onFileOpenLogic(File file) throws Exception {
+        GlobalConfigHolder config = GlobalConfigHolder.getInstance();
+
         String fileAbsolutePath = file.getAbsolutePath();
         try {
             List<String> localeStrings = DataModelUtility.loadLocalization(file);
             DataModelUtility.setLocaleStrings(data, localeStrings);
             data.setFilename(fileAbsolutePath);
-            GlobalConfigHolder config = GlobalConfigHolder.getInstance();
             if (!config.getLastOpenedFile().equals(fileAbsolutePath)) {
-                GlobalConfigHolder.getInstance().setLastOpenedFile(fileAbsolutePath);
-                GlobalConfigHolder.getInstance().store();
+                config.setLastOpenedFile(fileAbsolutePath);
+                config.store();
             }
         } catch (FileNotFoundException e) {
-            GlobalConfigHolder.getInstance().setLastOpenedFile("");
-            GlobalConfigHolder.getInstance().setLastEditedLine(1);
-            GlobalConfigHolder.getInstance().store();
+            config.setLastOpenedFile("");
+            config.setLastEditedLine(1);
+            config.store();
             throw e;
         }
     }
@@ -72,13 +70,16 @@ public class BusinessLogic {
         }
     }
 
-    // TODO: javadoc.
-    protected boolean onExitLogic() {
-        // TODO: добавить публичный метод isChanged в DataModel, и использовать его здесь для принятия решения
-        //  показывать ли диалог-подтверждение.
-        Optional<ButtonType> result = DialogFactory.buildConfirmationDialog("Вы уверены, что хотите выйти? " +
-                "Все несохранённые изменения будут утеряны.")
-                .showAndWait();
-        return result.isPresent() && result.get() == ButtonType.OK;
+    /**
+     * Сохраняет некоторые параметры окна в {@link GlobalConfigHolder конфигурационный файл}.
+     *
+     * @param sceneWidth ширина окна.
+     * @param sceneHeight высота окна.
+     */
+    protected void saveWindowConfiguration(double sceneWidth, double sceneHeight) {
+        GlobalConfigHolder config = GlobalConfigHolder.getInstance();
+        config.setSceneWidth(sceneWidth);
+        config.setSceneHeight(sceneHeight);
+        config.store();
     }
 }

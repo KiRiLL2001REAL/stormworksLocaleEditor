@@ -4,9 +4,9 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import javafx.util.Pair;
 import ru.example.localetool.controllers.Controller;
 import ru.example.localetool.model.config.GlobalConfigHolder;
-import ru.example.localetool.view.DialogFactory;
 
 import java.io.*;
 
@@ -20,24 +20,23 @@ public class MainApplication extends Application {
         stage.setScene(scene);
         stage.setMinWidth(640);
         stage.setMinHeight(480);
-        stage.setWidth(GlobalConfigHolder.getInstance().getSceneWidth());
-        stage.setHeight(GlobalConfigHolder.getInstance().getSceneHeight());
+
+        Pair<Double, Double> windowConfiguration = loadWindowConfiguration();
+        stage.setWidth(windowConfiguration.getKey());
+        stage.setHeight(windowConfiguration.getValue());
+
         stage.show();
 
         Controller controller = fxmlLoader.getController();
-        scene.getWindow().setOnCloseRequest(wEvent -> {
-            if (controller.canShutdown()) {
-                GlobalConfigHolder.getInstance().setSceneWidth(stage.getWidth());
-                GlobalConfigHolder.getInstance().setSceneHeight(stage.getHeight());
-                if (!GlobalConfigHolder.getInstance().store())
-                    DialogFactory.buildWarningDialog("Произошла ошибка сохранения конфигурационного файла.")
-                            .showAndWait();
-            } else
-                wEvent.consume();
-        });
+        scene.getWindow().setOnCloseRequest(controller.onCloseRequestHandler);
     }
 
     public static void main(String[] args) {
         launch();
+    }
+
+    public static Pair<Double, Double> loadWindowConfiguration() {
+        GlobalConfigHolder config = GlobalConfigHolder.getInstance();
+        return new Pair<>(config.getSceneWidth(), config.getSceneHeight());
     }
 }

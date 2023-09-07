@@ -1,13 +1,9 @@
 package ru.example.localetool.controllers;
 
-import javafx.application.Platform;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.Node;
-import javafx.scene.control.Button;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -20,6 +16,7 @@ import ru.example.localetool.view.DialogFactory;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.net.URL;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 public class Controller extends BusinessLogic implements Initializable {
@@ -67,6 +64,21 @@ public class Controller extends BusinessLogic implements Initializable {
     @FXML
     private Button button_confirmAndToNext;
 
+    public EventHandler<WindowEvent> onCloseRequestHandler = event -> {
+        if (!getData().isChanged())
+            return;
+        Optional<ButtonType> result = DialogFactory.buildConfirmationDialog(
+                "Вы уверены, что хотите выйти? Все несохранённые изменения будут утеряны.")
+                .showAndWait();
+        boolean userIsAgree = result.isPresent() && result.get() == ButtonType.OK;
+        if (!userIsAgree) {
+            event.consume();
+            return;
+        }
+        Stage stage = (Stage) workspace.getScene().getWindow();
+        saveWindowConfiguration(stage.getWidth(), stage.getHeight());
+    };
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         setWorkspaceEnable(false);
@@ -104,11 +116,6 @@ public class Controller extends BusinessLogic implements Initializable {
     private void setMenuSaveEnable(boolean enable) {
         mi_file_save.setDisable(!enable);
         mi_file_saveAs.setDisable(!enable);
-    }
-
-    // Forwarding function for use in MainApplication
-    public boolean canShutdown() {
-        return onExitLogic();
     }
 
     @FXML

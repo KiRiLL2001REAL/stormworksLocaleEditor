@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DataModel {
+    private boolean changed;
     private String filename;
     private List<String> ids;
     private List<String> descriptions;
@@ -13,6 +14,8 @@ public class DataModel {
     private final long startStringIdx;
 
     public DataModel() {
+        changed = false;
+
         filename = null;
 
         ids = null;
@@ -26,6 +29,14 @@ public class DataModel {
 
 
     // GETTERS AND SETTERS SECTION
+
+    public boolean isChanged() {
+        return changed;
+    }
+
+    public void flushChanged() {
+        changed = false;
+    }
 
     public String getFilename() {
         return filename;
@@ -63,8 +74,23 @@ public class DataModel {
         return locales;
     }
 
+    public String getLocale(int idx) {
+        if (locales == null || idx < 0 || idx >= locales.size())
+            return null;
+        return locales.get(idx);
+    }
+
     public void setLocales(List<String> locales) {
         this.locales = locales;
+    }
+
+    public void setLocale(int idx, String locale) {
+        if (locales == null || idx < 0 || idx >= locales.size()) {
+            System.out.println("setLocale by incorrect idx, or localization is not loaded yet.");
+            return;
+        }
+        changed = true;
+        locales.set(idx, locale);
     }
 
     public long getCurrentStringIdx() {
@@ -79,10 +105,6 @@ public class DataModel {
         return startStringIdx;
     }
 
-    public long getLinesTotal() {
-        return ids.size();
-    }
-
 
 
     // OTHER METHODS SECTION
@@ -91,6 +113,10 @@ public class DataModel {
         if (ids == null || ids.size() == 0)
             return null;
         return combineLocaleString(0);
+    }
+
+    public long getLinesTotal() {
+        return ids.size();
     }
 
     public List<String> getLocaleStrings() {
