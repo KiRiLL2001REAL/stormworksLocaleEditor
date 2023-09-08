@@ -11,6 +11,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import ru.example.localetool.logic.BusinessLogic;
+import ru.example.localetool.model.config.ApplicationConfig;
 import ru.example.localetool.model.config.GlobalConfig;
 import ru.example.localetool.model.exception.UnsupportedFileStructureException;
 import ru.example.localetool.view.DialogFactory;
@@ -18,6 +19,7 @@ import ru.example.localetool.view.DialogFactory;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.net.URL;
+import java.nio.file.Paths;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
@@ -163,6 +165,7 @@ public class Controller extends BusinessLogic implements Initializable {
         try {
             onFileOpenLogic(selectedFile);
             setupComponentsOnSuccessfulOpenFile();
+            changeWindowTitle(selectedFile);
         } catch (Exception e) {
             if (e instanceof NullPointerException)
                 DialogFactory.buildWarningDialog("Файл локализации не был выбран.").showAndWait();
@@ -183,6 +186,7 @@ public class Controller extends BusinessLogic implements Initializable {
             File file = new File(GlobalConfig.getInstance().getLastOpenedFile());
             onFileOpenLogic(file);
             setupComponentsOnSuccessfulOpenFile();
+            changeWindowTitle(file);
         } catch (Exception e) {
             mi_file_openRecent.setDisable(true);
             if (e instanceof FileNotFoundException) {
@@ -201,6 +205,12 @@ public class Controller extends BusinessLogic implements Initializable {
         mi_file_saveAs.setDisable(false);
         mi_file_openRecent.setDisable(false);
         textarea_translated.requestFocus();
+    }
+
+    private void changeWindowTitle(File file) {
+        String filename = Paths.get(file.getAbsolutePath()).getFileName().toString();
+        Stage stage = (Stage) workspace.getScene().getWindow();
+        stage.setTitle(ApplicationConfig.APPLICATION_NAME + ": " + filename);
     }
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")

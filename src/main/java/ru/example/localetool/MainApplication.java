@@ -6,6 +6,7 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import javafx.util.Pair;
 import ru.example.localetool.controllers.Controller;
+import ru.example.localetool.model.config.ApplicationConfig;
 import ru.example.localetool.model.config.GlobalConfig;
 
 import java.io.*;
@@ -16,7 +17,7 @@ public class MainApplication extends Application {
         FXMLLoader fxmlLoader = new FXMLLoader(this.getClass().getResource("view.fxml"));
 
         Scene scene = new Scene(fxmlLoader.load());
-        stage.setTitle("LocaleTool");
+        stage.setTitle(ApplicationConfig.APPLICATION_NAME + ": <файл не выбран>");
         stage.setScene(scene);
         stage.setMinWidth(640);
         stage.setMinHeight(480);
