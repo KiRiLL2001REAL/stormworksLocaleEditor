@@ -1,22 +1,23 @@
 package ru.example.localetool.model;
 
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class DataModel {
     private final SimpleBooleanProperty changed;
+    private final SimpleIntegerProperty currentLine;
     private String filename;
     private List<String> ids;
     private List<String> descriptions;
     private List<String> ens;
     private List<String> locales;
-    private long currentStringIdx;
-    private final long startStringIdx;
 
     public DataModel() {
         changed = new SimpleBooleanProperty(false);
+        currentLine = new SimpleIntegerProperty(0);
 
         filename = null;
 
@@ -24,13 +25,11 @@ public class DataModel {
         descriptions = null;
         ens = null;
         locales = null;
-
-        startStringIdx = 1;
     }
 
 
 
-    // GETTERS AND SETTERS SECTION
+    // PROPERTIES
 
     public SimpleBooleanProperty changedProperty() {
         return changed;
@@ -44,6 +43,26 @@ public class DataModel {
         changed.set(false);
     }
 
+    public SimpleIntegerProperty currentLineProperty() {
+        return currentLine;
+    }
+
+    public int getCurrentLine() {
+        return currentLine.get();
+    }
+
+    public void setCurrentLine(int idx) {
+        if (idx < 0)
+            idx = 0;
+        else if (idx >= ids.size())
+            idx = ids.size() - 1;
+        currentLine.set(idx);
+    }
+
+
+
+    // GETTERS AND SETTERS SECTION
+
     public String getFilename() {
         return filename;
     }
@@ -52,32 +71,34 @@ public class DataModel {
         this.filename = filename;
     }
 
-    public List<String> getIds() {
-        return ids;
+    public String getId(int idx) {
+        if (ids == null || idx < 0 || idx >= ids.size())
+            return null;
+        return ids.get(idx);
     }
 
     public void setIds(List<String> ids) {
         this.ids = ids;
     }
 
-    public List<String> getDescriptions() {
-        return descriptions;
+    public String getDescription(int idx) {
+        if (descriptions == null || idx < 0 || idx >= descriptions.size())
+            return null;
+        return descriptions.get(idx);
     }
 
     public void setDescriptions(List<String> descriptions) {
         this.descriptions = descriptions;
     }
 
-    public List<String> getEns() {
-        return ens;
+    public String getEn(int idx) {
+        if (ens == null || idx < 0 || idx >= ens.size())
+            return null;
+        return ens.get(idx);
     }
 
     public void setEns(List<String> ens) {
         this.ens = ens;
-    }
-
-    public List<String> getLocales() {
-        return locales;
     }
 
     public String getLocale(int idx) {
@@ -97,18 +118,6 @@ public class DataModel {
         }
         changed.set(true);
         locales.set(idx, locale);
-    }
-
-    public long getCurrentStringIdx() {
-        return currentStringIdx;
-    }
-
-    public void setCurrentStringIdx(long currentLine) {
-        this.currentStringIdx = currentLine;
-    }
-
-    public long getStartStringIdx() {
-        return startStringIdx;
     }
 
 

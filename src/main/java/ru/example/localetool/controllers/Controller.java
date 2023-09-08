@@ -1,5 +1,7 @@
 package ru.example.localetool.controllers;
 
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -64,7 +66,7 @@ public class Controller extends BusinessLogic implements Initializable {
     @FXML
     private Button button_confirmAndToNext;
 
-    public EventHandler<WindowEvent> onCloseRequestHandler = event -> {
+    public final EventHandler<WindowEvent> onCloseRequestHandler = event -> {
         if (!getData().isChanged())
             return;
         Optional<ButtonType> result = DialogFactory.buildConfirmationDialog(
@@ -95,6 +97,28 @@ public class Controller extends BusinessLogic implements Initializable {
         initNavBarActions();
     }
 
+    private final ChangeListener<Number> onChangeEditingStringListener = new ChangeListener<>() {
+        @Override
+        public void changed(ObservableValue<? extends Number> observableValue, Number oldVal, Number newVal) {
+            int idx = (int) newVal;
+
+            String idStr = getData().getId(idx);
+            String descriptionStr = getData().getDescription(idx);
+            String originalStr = getData().getEn(idx);
+            String translatedStr = getData().getLocale(idx);
+
+            if (idStr.isBlank())
+                idStr = "<не указано>";
+            if (descriptionStr.isBlank())
+                descriptionStr = "<не указано>";
+
+            textfield_id.setText(idStr);
+            textarea_description.setText(descriptionStr);
+            textarea_original.setText(originalStr);
+            textarea_translated.setText(translatedStr);
+        }
+    };
+
     private void initMenuActions() {
         mi_file_open.setOnAction(event -> onFileOpenPressed());
         mi_file_openRecent.setOnAction(event -> onFileOpenRecentPressed());
@@ -104,6 +128,9 @@ public class Controller extends BusinessLogic implements Initializable {
 
         // Если данные не изменены, опция сохранения становится неактивной.
         getData().changedProperty().addListener((observableValue, oldVal, newVal) -> mi_file_save.setDisable(!newVal));
+
+        // При изменении индекса текущей строки, загружаем данные полей из соответствующих компонентов DataModel.
+        getData().currentLineProperty().addListener(onChangeEditingStringListener);
     }
 
     private void initWorkspaceActions() {

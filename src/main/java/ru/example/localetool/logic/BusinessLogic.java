@@ -44,8 +44,10 @@ public class BusinessLogic {
             data.setFilename(fileAbsolutePath);
             if (!config.getLastOpenedFile().equals(fileAbsolutePath)) {
                 config.setLastOpenedFile(fileAbsolutePath);
+                config.setLastEditedLine(1);
                 config.store();
             }
+            data.setCurrentLine(config.getLastEditedLine());
         } catch (FileNotFoundException e) {
             config.setLastOpenedFile("");
             config.setLastEditedLine(1);

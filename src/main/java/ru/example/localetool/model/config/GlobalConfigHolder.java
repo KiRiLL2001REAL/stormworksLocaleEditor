@@ -18,7 +18,7 @@ public class GlobalConfigHolder {
     private double sceneWidth;
     private double sceneHeight;
     private String lastOpenedFile;
-    private long lastEditedLine;
+    private int lastEditedLine;
 
 
     private static final class InstanceHolder {
@@ -59,7 +59,7 @@ public class GlobalConfigHolder {
         sceneWidth = iniFile.get(SCENE_WIDTH.getKey(), SCENE_WIDTH.getValue(), double.class);
         sceneHeight = iniFile.get(SCENE_HEIGHT.getKey(), SCENE_HEIGHT.getValue(), double.class);
         lastOpenedFile = iniFile.get(LAST_OPENED_FILE.getKey(), LAST_OPENED_FILE.getValue(), String.class);
-        lastEditedLine = iniFile.get(LAST_EDITED_LINE.getKey(), LAST_EDITED_LINE.getValue(), long.class);
+        lastEditedLine = iniFile.get(LAST_EDITED_LINE.getKey(), LAST_EDITED_LINE.getValue(), int.class);
     }
 
     public boolean store() {
@@ -108,11 +108,11 @@ public class GlobalConfigHolder {
         this.lastOpenedFile = lastOpenedFile;
     }
 
-    public long getLastEditedLine() {
+    public int getLastEditedLine() {
         return lastEditedLine;
     }
 
-    public void setLastEditedLine(long lastEditedLine) {
+    public void setLastEditedLine(int lastEditedLine) {
         this.lastEditedLine = lastEditedLine;
     }
 }
