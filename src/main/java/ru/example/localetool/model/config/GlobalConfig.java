@@ -8,8 +8,8 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-public class GlobalConfigHolder {
-    private final String configFilename = "globalConfig.ini";
+public class GlobalConfig {
+    private final String FILENAME = "globalConfig.ini";
     private final Pair<String, String> SCENE_WIDTH = new Pair<>("scene", "width");
     private final Pair<String, String> SCENE_HEIGHT = new Pair<>("scene", "height");
     private final Pair<String, String> LAST_OPENED_FILE = new Pair<>("editor", "lastOpenedFile");
@@ -22,19 +22,19 @@ public class GlobalConfigHolder {
 
 
     private static final class InstanceHolder {
-        private static final GlobalConfigHolder INSTANCE = new GlobalConfigHolder();
+        private static final GlobalConfig INSTANCE = new GlobalConfig();
     }
 
-    public static GlobalConfigHolder getInstance() {
+    public static GlobalConfig getInstance() {
         return InstanceHolder.INSTANCE;
     }
 
-    private GlobalConfigHolder() {
+    private GlobalConfig() {
         boolean success = false;
         //   В начале пытаемся прочитать конфигурационный файл.
         //   Если возникла ошибка вида FileNotFound, то файл ещё не создан и его необходимо проинициализировать
         // начальными значениями, в противном случае - кидается исключение.
-        try (FileInputStream fis = new FileInputStream(configFilename)) {
+        try (FileInputStream fis = new FileInputStream(FILENAME)) {
             load(new Ini(fis));
             success = true;
         } catch (IOException e) {
@@ -46,7 +46,7 @@ public class GlobalConfigHolder {
             // create a new configuration file
             try {
                 createDefaultConfig();
-                try (FileInputStream fis = new FileInputStream(configFilename)) {
+                try (FileInputStream fis = new FileInputStream(FILENAME)) {
                     load(new Ini(fis));
                 }
             } catch (IOException e) {
@@ -62,18 +62,16 @@ public class GlobalConfigHolder {
         lastEditedLine = iniFile.get(LAST_EDITED_LINE.getKey(), LAST_EDITED_LINE.getValue(), int.class);
     }
 
-    public boolean store() {
-        try (FileOutputStream fos = new FileOutputStream(configFilename)) {
+    public void store() {
+        try (FileOutputStream fos = new FileOutputStream(FILENAME)) {
             Ini storedConfig = new Ini();
             storedConfig.put(SCENE_WIDTH.getKey(), SCENE_WIDTH.getValue(), sceneWidth);
             storedConfig.put(SCENE_HEIGHT.getKey(), SCENE_HEIGHT.getValue(), sceneHeight);
             storedConfig.put(LAST_OPENED_FILE.getKey(), LAST_OPENED_FILE.getValue(), lastOpenedFile);
             storedConfig.put(LAST_EDITED_LINE.getKey(), LAST_EDITED_LINE.getValue(), lastEditedLine);
             storedConfig.store(fos);
-            return true;
         } catch (IOException ignored) {
         }
-        return false;
     }
 
     private void createDefaultConfig() throws IOException {

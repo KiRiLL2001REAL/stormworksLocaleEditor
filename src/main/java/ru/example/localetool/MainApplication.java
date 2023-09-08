@@ -6,7 +6,7 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import javafx.util.Pair;
 import ru.example.localetool.controllers.Controller;
-import ru.example.localetool.model.config.GlobalConfigHolder;
+import ru.example.localetool.model.config.GlobalConfig;
 
 import java.io.*;
 
@@ -36,7 +36,7 @@ public class MainApplication extends Application {
     }
 
     public static Pair<Double, Double> loadWindowConfiguration() {
-        GlobalConfigHolder config = GlobalConfigHolder.getInstance();
+        GlobalConfig config = GlobalConfig.getInstance();
         return new Pair<>(config.getSceneWidth(), config.getSceneHeight());
     }
 }

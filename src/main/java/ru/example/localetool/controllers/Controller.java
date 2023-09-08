@@ -11,7 +11,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import ru.example.localetool.logic.BusinessLogic;
-import ru.example.localetool.model.config.GlobalConfigHolder;
+import ru.example.localetool.model.config.GlobalConfig;
 import ru.example.localetool.model.exception.UnsupportedFileStructureException;
 import ru.example.localetool.view.DialogFactory;
 
@@ -88,7 +88,7 @@ public class Controller extends BusinessLogic implements Initializable {
         mi_file_save.setDisable(true);
         mi_file_saveAs.setDisable(true);
 
-        GlobalConfigHolder config = GlobalConfigHolder.getInstance();
+        GlobalConfig config = GlobalConfig.getInstance();
         if (config.getLastOpenedFile().isBlank())
             mi_file_openRecent.setDisable(true);
 
@@ -146,7 +146,7 @@ public class Controller extends BusinessLogic implements Initializable {
         if (getData().isChanged() && !checkIfUserWantOpenWithoutSaving())
             return;
 
-        String lastOpenedFile = GlobalConfigHolder.getInstance().getLastOpenedFile();
+        String lastOpenedFile = GlobalConfig.getInstance().getLastOpenedFile();
         File initialDirectory = lastOpenedFile.isBlank() ?
                 new File(System.getProperty("user.dir"))
                 : new File(lastOpenedFile.substring(0, lastOpenedFile.lastIndexOf('\\')));
@@ -180,7 +180,7 @@ public class Controller extends BusinessLogic implements Initializable {
             return;
 
         try {
-            File file = new File(GlobalConfigHolder.getInstance().getLastOpenedFile());
+            File file = new File(GlobalConfig.getInstance().getLastOpenedFile());
             onFileOpenLogic(file);
             setupComponentsOnSuccessfulOpenFile();
         } catch (Exception e) {
@@ -226,7 +226,7 @@ public class Controller extends BusinessLogic implements Initializable {
     @FXML
     protected void onFileSaveAsPressed() {
         // Устанавливаем начальную директорию
-        String lastOpenedFile = GlobalConfigHolder.getInstance().getLastOpenedFile();
+        String lastOpenedFile = GlobalConfig.getInstance().getLastOpenedFile();
         File initialDirectory = lastOpenedFile.isBlank() ?
                 new File(System.getProperty("user.dir"))
                 : new File(lastOpenedFile.substring(0, lastOpenedFile.lastIndexOf('\\')));

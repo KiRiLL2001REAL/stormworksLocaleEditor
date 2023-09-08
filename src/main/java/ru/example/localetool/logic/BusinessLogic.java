@@ -2,7 +2,7 @@ package ru.example.localetool.logic;
 
 import ru.example.localetool.model.DataModel;
 import ru.example.localetool.model.DataModelUtility;
-import ru.example.localetool.model.config.GlobalConfigHolder;
+import ru.example.localetool.model.config.GlobalConfig;
 
 import java.io.*;
 import java.util.List;
@@ -22,7 +22,7 @@ public class BusinessLogic {
      * Функция, загружающая строки локализации из указанного файла в {@link DataModel модель}.
      * <p>
      * При успешном открытии файла, в {@link DataModel модель} помещается его содержимое.
-     * Также путь к файлу прописывается в {@link GlobalConfigHolder конфигурационном файле} и в самой
+     * Также путь к файлу прописывается в {@link GlobalConfig конфигурационном файле} и в самой
      * {@link DataModel модели}.
      *
      * @param file файл локализации Stormworks.
@@ -32,10 +32,10 @@ public class BusinessLogic {
      *
      * @see DataModel#getLocaleStrings()
      * @see DataModel#getFilename()
-     * @see GlobalConfigHolder#getLastOpenedFile()
+     * @see GlobalConfig#getLastOpenedFile()
      */
     protected void onFileOpenLogic(File file) throws Exception {
-        GlobalConfigHolder config = GlobalConfigHolder.getInstance();
+        GlobalConfig config = GlobalConfig.getInstance();
 
         String fileAbsolutePath = file.getAbsolutePath();
         try {
@@ -74,13 +74,13 @@ public class BusinessLogic {
     }
 
     /**
-     * Сохраняет некоторые параметры окна в {@link GlobalConfigHolder конфигурационный файл}.
+     * Сохраняет некоторые параметры окна в {@link GlobalConfig конфигурационный файл}.
      *
      * @param sceneWidth ширина окна.
      * @param sceneHeight высота окна.
      */
     protected void saveWindowConfiguration(double sceneWidth, double sceneHeight) {
-        GlobalConfigHolder config = GlobalConfigHolder.getInstance();
+        GlobalConfig config = GlobalConfig.getInstance();
         config.setSceneWidth(sceneWidth);
         config.setSceneHeight(sceneHeight);
         config.store();
